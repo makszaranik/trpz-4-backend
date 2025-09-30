@@ -1,6 +1,6 @@
 package com.example.demo.model;
 
-
+import com.example.demo.util.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,8 +23,3 @@ public class UserEntity {
     private UserRole role;
 }
 
-enum UserRole {
-    STUDENT,
-    TEACHER,
-    ADMIN
-}

@@ -12,7 +12,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
 
 @Data
-@Builder
 @Document("files")
 @NoArgsConstructor
 @AllArgsConstructor
@@ -29,3 +28,4 @@ public abstract class FileEntity {
     @LastModifiedDate
     private LocalDateTime lastModifiedAt;
 }
+
