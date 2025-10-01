@@ -1,5 +1,4 @@
-package com.example.demo.model;
-
+package com.example.demo.model.report;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,16 +12,17 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
-@Document("submissions")
+@Document("reports")
 @NoArgsConstructor
 @AllArgsConstructor
-public class SubmissionEntity {
+public class ReportEntity {
 
     @Id
     private String id;
-    private String taskId;
-    private String userId;
-    private String sourceCodeFileId;
+    private String status;
+    private String submissionId;
+    private String unitTestsResult;
+    private String lintersResult;
 
     @CreatedDate
     private LocalDateTime createdAt;

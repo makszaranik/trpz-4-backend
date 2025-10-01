@@ -1,6 +1,6 @@
 package com.example.demo.repository;
 
-import com.example.demo.model.ReportEntity;
+import com.example.demo.model.report.ReportEntity;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

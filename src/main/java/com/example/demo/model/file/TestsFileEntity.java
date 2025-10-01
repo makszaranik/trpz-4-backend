@@ -1,13 +1,14 @@
-package com.example.demo.model;
+package com.example.demo.model.file;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
-@Builder
+@SuperBuilder
 @Document("files")
-@TypeAlias("solution")
+@TypeAlias("test")
 @EqualsAndHashCode(callSuper = true)
-public class SolutionFileEntity extends FileEntity {
+public class TestsFileEntity extends FileEntity {
 }

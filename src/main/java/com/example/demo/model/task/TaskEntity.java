@@ -1,4 +1,5 @@
-package com.example.demo.model;
+package com.example.demo.model.task;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,22 +11,35 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Data
-@Document("files")
+@Builder
+@Document("tasks")
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class FileEntity {
+public class TaskEntity {
 
     @Id
     private String id;
+    private String title;
+    private String statement;
     private String ownerId;
-    private String gridFSFileId;
+    private LocalTime timeRestriction;
+    private int memoryRestriction;
+    private String solutionTemplateFileId;
+    private String testsFileId;
+    private String lintersFileId;
+    private int testsPoints;
+    private int lintersPoints;
+    private int submissionsNumberLimit;
 
     @CreatedDate
     private LocalDateTime createdAt;
 
     @LastModifiedDate
     private LocalDateTime lastModifiedAt;
-}
 
+
+
+}

@@ -1,29 +1,38 @@
-package com.example.demo.model;
+package com.example.demo.model.file;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
 @Data
-@Builder
-@Document("reports")
+@SuperBuilder
+@Document("files")
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReportEntity {
+public abstract class FileEntity {
 
     @Id
     private String id;
-    private String status;
-    private String submissionId;
-    private String unitTestsResult;
-    private String lintersResult;
+    private String ownerId;
+    private String gridFSFileId;
 
     @CreatedDate
     private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    private LocalDateTime lastModifiedAt;
+
+    public enum FileType {
+        LINTER,
+        SOLUTION,
+        TEST
+    }
 }
+
