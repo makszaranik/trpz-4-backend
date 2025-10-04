@@ -5,12 +5,13 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import java.time.Duration;
 import java.time.LocalTime;
 
 public record TaskCreationRequestDto(
         @NotNull @NotBlank String title,
         @NotNull @NotBlank String statement,
-        @NotNull LocalTime timeRestriction,
+        @NotNull int timeRestriction,
         @Min(0) int memoryRestriction,
         @NotNull String solutionTemplateFileId,
         @NotNull String testsFileId,

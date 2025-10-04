@@ -23,7 +23,19 @@ public class SubmissionEntity {
     private String taskId;
     private String userId;
     private String sourceCodeFileId; //user uploaded sourceCodeId
+    private Status status;
 
     @CreatedDate
     private LocalDateTime createdAt;
+
+    public enum Status {
+        SUBMITTED,
+        COMPILING,
+        COMPILATION_SUCCESS,
+        COMPILATION_ERROR,
+        TESTING,
+        RUNTIME_ERROR,
+        TIME_LIMIT_EXCEEDED,
+        OUT_OF_MEMORY,
+    }
 }

@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @SuperBuilder
 @Document("files")
+@NoArgsConstructor
 @TypeAlias("solution")
 @EqualsAndHashCode(callSuper = true)
 public class SolutionFileEntity extends FileEntity {

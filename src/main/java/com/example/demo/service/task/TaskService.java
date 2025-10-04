@@ -5,6 +5,8 @@ import com.example.demo.repository.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class TaskService {
@@ -13,5 +15,9 @@ public class TaskService {
 
     public String save(TaskEntity task) {
         return taskRepository.save(task).getId();
+    }
+
+    public List<TaskEntity> findAll(){
+        return taskRepository.findAll();
     }
 }

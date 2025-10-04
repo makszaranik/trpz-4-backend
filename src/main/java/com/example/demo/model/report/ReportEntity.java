@@ -1,5 +1,6 @@
 package com.example.demo.model.report;
 
+import ch.qos.logback.core.status.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +20,7 @@ public class ReportEntity {
 
     @Id
     private String id;
-    private String status;
+    private Status status;
     private String submissionId;
     private String unitTestsResult;
     private String lintersResult;

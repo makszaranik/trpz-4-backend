@@ -1,6 +1,7 @@
 package com.example.demo.service.task;
 
 import com.example.demo.dto.task.TaskCreationRequestDto;
+import com.example.demo.dto.task.TaskResponseDto;
 import com.example.demo.model.task.TaskEntity;
 import org.springframework.stereotype.Component;
 
@@ -22,4 +23,17 @@ public class TaskMapper {
                 .build();
     }
 
+    public TaskResponseDto toResponseDto(TaskEntity entity) {
+        TaskResponseDto dto = new TaskResponseDto();
+        dto.setId(entity.getId());
+        dto.setTitle(entity.getTitle());
+        dto.setStatement(entity.getStatement());
+        dto.setTimeRestriction(entity.getTimeRestriction());
+        dto.setMemoryRestriction(entity.getMemoryRestriction());
+        dto.setTestsPoints(entity.getTestsPoints());
+        dto.setLintersPoints(entity.getLintersPoints());
+        dto.setSubmissionsNumberLimit(entity.getSubmissionsNumberLimit());
+        dto.setOwnerId(entity.getOwnerId());
+        return dto;
+    }
 }

@@ -25,7 +25,7 @@ public class TaskEntity {
     private String title;
     private String statement;
     private String ownerId;
-    private LocalTime timeRestriction;
+    private int timeRestriction;
     private int memoryRestriction;
     private String solutionTemplateFileId;
     private String testsFileId;

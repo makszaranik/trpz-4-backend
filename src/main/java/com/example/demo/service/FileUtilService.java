@@ -12,11 +12,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.gridfs.GridFsResource;
 import org.springframework.data.mongodb.gridfs.GridFsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -51,13 +50,14 @@ public class FileUtilService {
         return fileRepository.save(fileEntity);
     }
 
-    public GridFSFile getFileById(String fileId) {
+    public GridFsResource getFileById(String fileId) {
         FileEntity file = fileRepository.findById(fileId)
                 .orElseThrow(() -> {
                     String message = String.format("file with id %s not found", fileId);
                     return new ResourceNotFoundException(message);
                 });
         String gridFsFileId = file.getGridFSFileId();
-        return gridFsTemplate.findOne(Query.query(Criteria.where("_id").is(gridFsFileId)));
+        GridFSFile gridFsFile = gridFsTemplate.findOne(Query.query(Criteria.where("_id").is(gridFsFileId)));
+        return gridFsTemplate.getResource(gridFsFile);
     }
 }
