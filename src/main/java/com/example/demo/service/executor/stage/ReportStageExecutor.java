@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ReportStageExecutor implements StageExecutor {
 
+
     @Override
     public void execute(SubmissionEntity submission, StageExecutorChain chain) {
         log.info("Report stage {}.", submission.getId());

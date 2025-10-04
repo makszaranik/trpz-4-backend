@@ -21,7 +21,7 @@ services:
       ME_CONFIG_BASICAUTH_USERNAME: mongoexpressuser
       ME_CONFIG_BASICAUTH_PASSWORD: mongoexpresspass
   app:
-    image: application
+    image: app
     restart: always
     depends_on:
       - mongo

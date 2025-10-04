@@ -34,6 +34,8 @@ public class SubmissionEntity {
         COMPILATION_SUCCESS,
         COMPILATION_ERROR,
         TESTING,
+        TEST_COMPLETED_SUCCESS,
+        TEST_FAILED,
         RUNTIME_ERROR,
         TIME_LIMIT_EXCEEDED,
         OUT_OF_MEMORY,
