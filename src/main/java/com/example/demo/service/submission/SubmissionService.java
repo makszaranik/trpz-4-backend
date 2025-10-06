@@ -7,6 +7,7 @@ import com.example.demo.repository.SubmissionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -21,6 +22,7 @@ public class SubmissionService {
                 .userId("userId")
                 .sourceCodeFileId(submitDto.sourceCodeFileId())
                 .status(SubmissionEntity.Status.SUBMITTED)
+                .logs("")
                 .build();
         return submissionRepository.save(taskSubmission);
     }

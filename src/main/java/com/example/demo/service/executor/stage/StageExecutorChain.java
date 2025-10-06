@@ -15,7 +15,6 @@ public class StageExecutorChain {
 
     private final BuildStageExecutor buildStageExecutor;
     private final TestStageExecutor testStageExecutor;
-    private final ReportStageExecutor reportStageExecutor;
 
     private List<StageExecutor> stages;
     private int currentStageIndex = 0;
@@ -24,8 +23,7 @@ public class StageExecutorChain {
     private void initExecutorChain() {
         stages = List.of(
                 buildStageExecutor,
-                testStageExecutor,
-                reportStageExecutor
+                testStageExecutor
         );
     }
 

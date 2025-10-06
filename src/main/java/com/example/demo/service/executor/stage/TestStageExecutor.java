@@ -6,14 +6,17 @@ import com.example.demo.model.task.TaskEntity;
 import com.example.demo.service.submission.SubmissionService;
 import com.example.demo.service.task.TaskService;
 import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.WaitContainerResultCallback;
+import com.github.dockerjava.api.model.Frame;
 import com.github.dockerjava.api.model.HostConfig;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -28,26 +31,30 @@ public class TestStageExecutor implements StageExecutor {
 
     @Override
     public void execute(SubmissionEntity submission, StageExecutorChain chain) {
-        log.info("Test stage {}.", submission.getId());
-        TaskEntity task = taskService.findById(submission.getId());
+
+        log.info("Test stage started {}.", submission.getId());
+        TaskEntity task = taskService.findTaskEntityById(submission.getTaskId());
         String testsFileId = task.getTestsFileId();
         Integer timeRestriction = task.getTimeRestriction();
-        //todo memory restriction and Duration instead int
 
         String solutionUri = String.format("http://app:8080/files/download/%s", submission.getSourceCodeFileId());
         String testUri = String.format("http://app:8080/files/download/%s", testsFileId);
-        Integer statusCode = testJob(solutionUri, testUri);
 
+        Integer statusCode = testJob(timeRestriction, submission, solutionUri, testUri);
+
+        log.info("Status code is {}", statusCode);
         if(statusCode == 0){
-            submission.setStatus(SubmissionEntity.Status.TESTING);
+            submission.setStatus(SubmissionEntity.Status.ACCEPTED);
+            submissionService.save(submission);
             chain.doNext(submission, chain);
         } else {
-            submission.setStatus(SubmissionEntity.Status.TEST_FAILED);
+            submission.setStatus(SubmissionEntity.Status.WRONG_ANSWER);
+            submissionService.save(submission);
         }
-        submissionService.save(submission);
     }
 
-    public Integer testJob(String... args) {
+    @SneakyThrows
+    public Integer testJob(Integer timeRestriction, SubmissionEntity submission, String... args) {
         Integer statusCode;
         String containerId = "";
 
@@ -62,23 +69,42 @@ public class TestStageExecutor implements StageExecutor {
                     .exec();
 
             containerId = container.getId();
-            log.info("Test stage {} started.", containerId);
             dockerClient.startContainerCmd(containerId).exec();
+
             log.info("container running {}.", containerId);
 
             statusCode = dockerClient.waitContainerCmd(containerId)
                     .exec(new WaitContainerResultCallback())
-                    .awaitStatusCode(60, TimeUnit.SECONDS);
+                    .awaitStatusCode(timeRestriction, TimeUnit.SECONDS);
 
             log.info("container {} finished.", containerId);
+
 
         } catch (Exception e) {
             statusCode = -1;
             log.error("Test stage {} failed.", containerId, e);
+
         } finally {
+            /*
+            StringBuilder logs = new StringBuilder();
+            dockerClient.logContainerCmd(containerId)
+                    .withStdOut(true)
+                    .withStdErr(true)
+                    .withFollowStream(true)
+                    .exec(new ResultCallback.Adapter<Frame>(){
+                        @Override
+                        public void onNext(Frame frame) {
+                            logs.append(frame.toString());
+                        }
+                    })
+                    .awaitCompletion(60, TimeUnit.SECONDS); //await logs for 60 sec
+
+            log.info("container logs {}", logs);
+             */
             dockerClient.removeContainerCmd(containerId)
                     .withRemoveVolumes(true)
-                    .withForce(true);
+                    .withForce(true)
+                    .exec();
         }
         return statusCode;
     }

@@ -19,7 +19,6 @@ public class PipelineExecutor {
         submissionService.getAllSubmitted().forEach((submission) -> {
             if(submission.getStatus().equals(SubmissionEntity.Status.SUBMITTED)){
                 chain.startChain(submission);
-                //status not updated in build test report stages
             }
         });
     }

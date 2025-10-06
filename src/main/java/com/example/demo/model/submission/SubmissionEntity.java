@@ -10,6 +10,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -23,6 +24,7 @@ public class SubmissionEntity {
     private String taskId;
     private String userId;
     private String sourceCodeFileId; //user uploaded sourceCodeId
+    private String logs;
     private Status status;
 
     @CreatedDate
@@ -33,10 +35,9 @@ public class SubmissionEntity {
         COMPILING,
         COMPILATION_SUCCESS,
         COMPILATION_ERROR,
-        TESTING,
-        TEST_COMPLETED_SUCCESS,
-        TEST_FAILED,
-        RUNTIME_ERROR,
+        WRONG_ANSWER,
+        ACCEPTED,
+        LINTER_TESTING,
         TIME_LIMIT_EXCEEDED,
         OUT_OF_MEMORY,
     }

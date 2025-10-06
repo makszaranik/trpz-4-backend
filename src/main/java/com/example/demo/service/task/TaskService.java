@@ -21,8 +21,8 @@ public class TaskService {
         return taskRepository.findAll();
     }
 
-    public TaskEntity findById(String id){
-        return taskRepository.findById(id).orElseThrow(() -> {
+    public TaskEntity findTaskEntityById(String id){
+        return taskRepository.findTaskEntityById(id).orElseThrow(() -> {
             String message = String.format("Task with id %s not found", id);
             return new IllegalStateException(message);
         });

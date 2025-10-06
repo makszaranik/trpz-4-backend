@@ -3,13 +3,19 @@ package com.example.demo.service.executor.stage;
 import com.example.demo.model.submission.SubmissionEntity;
 import com.example.demo.service.submission.SubmissionService;
 import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.WaitContainerResultCallback;
+import com.github.dockerjava.api.model.Frame;
 import com.github.dockerjava.api.model.HostConfig;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.io.Closeable;
+import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -25,20 +31,22 @@ public class BuildStageExecutor implements StageExecutor {
 
         log.info("Building stage {}.", submission.getId());
         String solutionUri = String.format("http://app:8080/files/download/%s", submission.getSourceCodeFileId());
-        Integer statusCode = buildJob(solutionUri);
+
+        Integer statusCode = buildJob(submission, solutionUri);
+
         log.info("Status code is {}", statusCode);
         if (statusCode == 0) {
             submission.setStatus(SubmissionEntity.Status.COMPILATION_SUCCESS);
+            submissionService.save(submission);
             chain.doNext(submission, chain);
         } else {
             submission.setStatus(SubmissionEntity.Status.COMPILATION_ERROR);
+            submissionService.save(submission);
         }
-
-        submissionService.save(submission);
     }
 
-
-    public Integer buildJob(String... args) {
+    @SneakyThrows
+    public Integer buildJob(SubmissionEntity submission, String... args) {
         Integer statusCode;
         String containerId = "";
 
@@ -54,23 +62,39 @@ public class BuildStageExecutor implements StageExecutor {
                     .exec();
 
             containerId = container.getId();
-            log.info("Building stage {}.", containerId);
             dockerClient.startContainerCmd(containerId).exec();
+
             log.info("container running {}.", containerId);
 
             statusCode = dockerClient
                     .waitContainerCmd(containerId)
                     .exec(new WaitContainerResultCallback())
-                    .awaitStatusCode(60, TimeUnit.SECONDS);
+                    .awaitStatusCode(60, TimeUnit.SECONDS); //await build for 60 sec
 
             log.info("container {} finished.", containerId);
-
 
         } catch (Exception e) {
             statusCode = -1;
             log.error(e.getMessage(), e);
 
         } finally {
+            /*
+            StringBuilder logs = new StringBuilder();
+            dockerClient.logContainerCmd(containerId)
+                    .withStdOut(true)
+                    .withStdErr(true)
+                    .withFollowStream(true)
+                    .exec(new ResultCallback.Adapter<Frame>() {
+                        @Override
+                        public void onNext(Frame frame) {
+                            logs.append(frame.toString());
+                        }
+                    })
+                    .awaitCompletion(60, TimeUnit.SECONDS); //await logs for 60 sec
+
+            log.info("container logs {} ", new String(logs));
+             */
+
             dockerClient.removeContainerCmd(containerId)
                     .withRemoveVolumes(true)
                     .withForce(true)
