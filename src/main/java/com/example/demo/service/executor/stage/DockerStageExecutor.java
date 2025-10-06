@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 public abstract class DockerStageExecutor implements StageExecutor {
 
     protected final DockerClient dockerClient;
-    protected final SubmissionService submissionService;
+    private final SubmissionService submissionService;
 
     public Integer runJob(String imageTag, String containerName, SubmissionEntity submission, String... args) {
         Integer statusCode;

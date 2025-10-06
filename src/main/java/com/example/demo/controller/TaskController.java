@@ -32,23 +32,23 @@ public class TaskController {
 
 
     @PostMapping("submit")
-    @ResponseStatus(HttpStatus.OK)
     public SseEmitter submitTask(@RequestBody @Valid TaskSubmissionRequestDto submitDto) {
         SubmissionEntity submission = submissionService.createSubmission(submitDto);
         SseEmitter emitter = new SseEmitter();
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
-            try {
+            for (int i=0; true; i++){
                 SseEmitter.SseEventBuilder event = SseEmitter.event()
-                        .id(submission.getId())
-                        .name("event")
-                        .data(submissionService.findSubmissionById(submission.getId()));
+                        .data(submissionService.findSubmissionById(submission.getId()))
+                        .id(String.valueOf(i))
+                        .name("event " + i);
+                try {
+                    emitter.send(event);
+                    Thread.sleep(5000);
+                } catch (IOException | InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
 
-                emitter.send(event);
-                Thread.sleep(5000);
-
-            } catch (IOException | InterruptedException e) {
-                throw new RuntimeException(e);
             }
         });
         return emitter;

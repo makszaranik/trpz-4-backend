@@ -15,14 +15,16 @@ import org.springframework.stereotype.Component;
 public class TestStageExecutor extends DockerStageExecutor {
 
     private final TaskService taskService;
+    private final SubmissionService submissionService;
 
     @Autowired
     public TestStageExecutor(DockerClient dockerClient,
                              SubmissionService submissionService,
-                             TaskService taskService
+                             TaskService taskService, SubmissionService submissionService1
     ) {
         super(dockerClient, submissionService);
         this.taskService = taskService;
+        this.submissionService = submissionService;
     }
 
     @Override
