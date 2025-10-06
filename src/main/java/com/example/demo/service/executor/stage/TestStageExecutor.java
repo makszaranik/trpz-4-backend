@@ -87,6 +87,21 @@ public class TestStageExecutor implements StageExecutor {
 
         } finally {
 
+            StringBuilder logs = new StringBuilder();
+            dockerClient.logContainerCmd(containerId)
+                    .withStdOut(true)
+                    .withStdErr(true)
+                    .withFollowStream(false)
+                    .exec(new ResultCallback.Adapter<Frame>() {
+                        @Override
+                        public void onNext(Frame frame) {
+                            logs.append(new String(frame.getPayload(), StandardCharsets.UTF_8));
+                        }
+                    }).awaitCompletion(60, TimeUnit.SECONDS);
+
+            submission.setLogs(logs.toString());
+            log.info("container {} logs", logs);
+
             dockerClient.removeContainerCmd(containerId)
                     .withRemoveVolumes(true)
                     .withForce(true)
