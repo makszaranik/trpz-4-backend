@@ -2,7 +2,7 @@ package com.example.demo.dto.task;
 
 import jakarta.validation.constraints.NotNull;
 
-public record TaskDeletionResponseDto(
+public record TaskDeletionRequestDto(
         @NotNull String taskId
 )
 {}

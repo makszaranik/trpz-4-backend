@@ -2,6 +2,7 @@ package com.example.demo.service.executor.stage;
 
 import com.example.demo.model.submission.SubmissionEntity;
 import com.example.demo.service.submission.SubmissionService;
+import com.example.demo.service.task.TaskService;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.CreateContainerResponse;
@@ -11,6 +12,7 @@ import com.github.dockerjava.api.model.HostConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.Closeable;
@@ -21,19 +23,28 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component("build")
-@RequiredArgsConstructor
-public class BuildStageExecutor implements StageExecutor {
+public class BuildStageExecutor extends DockerStageExecutor {
 
-    private final DockerClient dockerClient;
     private final SubmissionService submissionService;
+
+    @Autowired
+    public BuildStageExecutor(DockerClient dockerClient, SubmissionService submissionService) {
+        super(dockerClient, submissionService);
+        this.submissionService = submissionService;
+    }
 
     @Override
     public void execute(SubmissionEntity submission, StageExecutorChain chain) {
 
-        log.info("Building stage {}.", submission.getId());
+        log.info("Build stage for submission {}.", submission.getId());
         String solutionUri = String.format("http://app:8080/files/download/%s", submission.getSourceCodeFileId());
 
-        Integer statusCode = buildJob(submission, solutionUri);
+        Integer statusCode = runJob(
+                "compile_stage",
+                "compile-container",
+                submission,
+                solutionUri
+        );
 
         log.info("Status code is {}", statusCode);
         if (statusCode == 0) {
@@ -44,62 +55,6 @@ public class BuildStageExecutor implements StageExecutor {
             submission.setStatus(SubmissionEntity.Status.COMPILATION_ERROR);
             submissionService.save(submission);
         }
-    }
-
-    @SneakyThrows
-    public Integer buildJob(SubmissionEntity submission, String... args) {
-        Integer statusCode;
-        String containerId = "";
-
-        try {
-            CreateContainerResponse container = dockerClient.createContainerCmd("compile_stage")
-                    .withCmd(args)
-                    .withHostConfig(HostConfig.newHostConfig().withNetworkMode("demo_default"))
-                    .withAttachStdin(true)
-                    .withAttachStdout(true)
-                    .withTty(true)
-                    .withName("compile-container")
-                    .exec();
-
-            containerId = container.getId();
-            dockerClient.startContainerCmd(containerId).exec();
-
-            log.info("container running {}.", containerId);
-
-            statusCode = dockerClient
-                    .waitContainerCmd(containerId)
-                    .exec(new WaitContainerResultCallback())
-                    .awaitStatusCode(60, TimeUnit.SECONDS); //await build for 60 sec
-
-            log.info("container {} finished.", containerId);
-
-        } catch (Exception e) {
-            statusCode = -1;
-            log.error(e.getMessage(), e);
-
-        } finally {
-
-            StringBuilder logs = new StringBuilder();
-            dockerClient.logContainerCmd(containerId)
-                    .withStdOut(true)
-                    .withStdErr(true)
-                    .withFollowStream(false)
-                    .exec(new ResultCallback.Adapter<Frame>() {
-                        @Override
-                        public void onNext(Frame frame) {
-                            logs.append(new String(frame.getPayload(), StandardCharsets.UTF_8));
-                        }
-                    }).awaitCompletion(60, TimeUnit.SECONDS);
-
-            submission.setLogs(logs.toString());
-            log.info("container {} logs", logs);
-
-            dockerClient.removeContainerCmd(containerId)
-                    .withRemoveVolumes(true)
-                    .withForce(true)
-                    .exec();
-        }
-        return statusCode;
     }
 }
 

@@ -27,4 +27,13 @@ public class TaskService {
             return new IllegalStateException(message);
         });
     }
+
+    public void removeTaskEntity(String id){
+        TaskEntity taskToDelete = findTaskEntityById(id);
+        taskRepository.delete(taskToDelete);
+    }
+
+    public TaskEntity updateTask(TaskEntity task){
+        return taskRepository.save(task);
+    }
 }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,12 +25,17 @@ public class SubmissionService {
                 .status(SubmissionEntity.Status.SUBMITTED)
                 .logs("")
                 .build();
+
         return submissionRepository.save(taskSubmission);
     }
 
 
     public List<SubmissionEntity> getAllSubmitted() {
         return submissionRepository.findAllByStatus(SubmissionEntity.Status.SUBMITTED);
+    }
+
+    public Optional<SubmissionEntity> findSubmissionById(String id) {
+        return submissionRepository.findSubmissionEntityById(id);
     }
 
     public void save(SubmissionEntity submissionEntity) {

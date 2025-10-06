@@ -1,6 +1,6 @@
 package com.example.demo.service.task;
 
-import com.example.demo.dto.task.TaskCreationRequestDto;
+import com.example.demo.dto.task.TaskRequestDto;
 import com.example.demo.dto.task.TaskResponseDto;
 import com.example.demo.model.task.TaskEntity;
 import org.springframework.stereotype.Component;
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class TaskMapper {
 
-    public TaskEntity toEntity(TaskCreationRequestDto createDto, String ownerId) {
+    public TaskEntity toEntity(TaskRequestDto createDto, String ownerId) {
         return TaskEntity.builder()
                 .title(createDto.title())
                 .statement(createDto.statement())
@@ -24,16 +24,16 @@ public class TaskMapper {
     }
 
     public TaskResponseDto toResponseDto(TaskEntity entity) {
-        TaskResponseDto dto = new TaskResponseDto();
-        dto.setId(entity.getId());
-        dto.setTitle(entity.getTitle());
-        dto.setStatement(entity.getStatement());
-        dto.setTimeRestriction(entity.getTimeRestriction());
-        dto.setMemoryRestriction(entity.getMemoryRestriction());
-        dto.setTestsPoints(entity.getTestsPoints());
-        dto.setLintersPoints(entity.getLintersPoints());
-        dto.setSubmissionsNumberLimit(entity.getSubmissionsNumberLimit());
-        dto.setOwnerId(entity.getOwnerId());
-        return dto;
+        return new TaskResponseDto(
+                entity.getId(),
+                entity.getTitle(),
+                entity.getStatement(),
+                entity.getTimeRestriction(),
+                entity.getMemoryRestriction(),
+                entity.getTestsPoints(),
+                entity.getLintersPoints(),
+                entity.getSubmissionsNumberLimit(),
+                entity.getOwnerId()
+        );
     }
 }

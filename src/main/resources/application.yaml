@@ -6,3 +6,19 @@ spring:
     scheduling:
       pool:
         size: 10
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: backend_route
+              uri: http://localhost:8080
+              predicates:
+                - Path=/api/**
+              filters:
+                - StripPrefix=1
+
+            - id: frontend_route
+              uri: http://localhost:8000
+              predicates:
+                - Path=/**
