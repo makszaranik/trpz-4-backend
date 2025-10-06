@@ -16,6 +16,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -85,22 +86,7 @@ public class TestStageExecutor implements StageExecutor {
             log.error("Test stage {} failed.", containerId, e);
 
         } finally {
-            /*
-            StringBuilder logs = new StringBuilder();
-            dockerClient.logContainerCmd(containerId)
-                    .withStdOut(true)
-                    .withStdErr(true)
-                    .withFollowStream(true)
-                    .exec(new ResultCallback.Adapter<Frame>(){
-                        @Override
-                        public void onNext(Frame frame) {
-                            logs.append(frame.toString());
-                        }
-                    })
-                    .awaitCompletion(60, TimeUnit.SECONDS); //await logs for 60 sec
 
-            log.info("container logs {}", logs);
-             */
             dockerClient.removeContainerCmd(containerId)
                     .withRemoveVolumes(true)
                     .withForce(true)
@@ -108,6 +94,5 @@ public class TestStageExecutor implements StageExecutor {
         }
         return statusCode;
     }
-
 
 }

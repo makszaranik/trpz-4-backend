@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -78,22 +79,6 @@ public class BuildStageExecutor implements StageExecutor {
             log.error(e.getMessage(), e);
 
         } finally {
-            /*
-            StringBuilder logs = new StringBuilder();
-            dockerClient.logContainerCmd(containerId)
-                    .withStdOut(true)
-                    .withStdErr(true)
-                    .withFollowStream(true)
-                    .exec(new ResultCallback.Adapter<Frame>() {
-                        @Override
-                        public void onNext(Frame frame) {
-                            logs.append(frame.toString());
-                        }
-                    })
-                    .awaitCompletion(60, TimeUnit.SECONDS); //await logs for 60 sec
-
-            log.info("container logs {} ", new String(logs));
-             */
 
             dockerClient.removeContainerCmd(containerId)
                     .withRemoveVolumes(true)
