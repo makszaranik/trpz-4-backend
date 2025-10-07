@@ -11,7 +11,6 @@ import com.github.dockerjava.api.model.HostConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
@@ -19,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @RequiredArgsConstructor
-public abstract class DockerStageExecutor implements StageExecutor {
+public abstract class DockerJobRunner {
 
     protected final DockerClient dockerClient;
     private final SubmissionService submissionService;

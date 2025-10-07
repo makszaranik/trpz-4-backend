@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component("test")
-public class TestStageExecutor extends DockerStageExecutor {
+public class TestStageExecutor extends DockerJobRunner implements StageExecutor {
 
     private final TaskService taskService;
     private final SubmissionService submissionService;
@@ -20,7 +20,7 @@ public class TestStageExecutor extends DockerStageExecutor {
     @Autowired
     public TestStageExecutor(DockerClient dockerClient,
                              SubmissionService submissionService,
-                             TaskService taskService, SubmissionService submissionService1
+                             TaskService taskService
     ) {
         super(dockerClient, submissionService);
         this.taskService = taskService;
@@ -34,8 +34,9 @@ public class TestStageExecutor extends DockerStageExecutor {
         TaskEntity task = taskService.findTaskEntityById(submission.getTaskId());
         String testsFileId = task.getTestsFileId();
 
-        String solutionUri = String.format("http://app:8080/files/download/%s", submission.getSourceCodeFileId());
-        String testUri = String.format("http://app:8080/files/download/%s", testsFileId);
+        String downloadPath = "http://app:8080/files/download/%s";
+        String solutionUri = String.format(downloadPath, submission.getSourceCodeFileId());
+        String testUri = String.format(downloadPath, testsFileId);
 
         Integer statusCode = runJob(
                 "test_stage",
