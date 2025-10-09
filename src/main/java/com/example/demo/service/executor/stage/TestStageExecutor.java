@@ -38,16 +38,24 @@ public class TestStageExecutor extends DockerJobRunner implements StageExecutor 
         String solutionUri = String.format(downloadPath, submission.getSourceCodeFileId());
         String testUri = String.format(downloadPath, testsFileId);
 
-        Integer statusCode = runJob(
-                "test_stage",
-                "test-container",
-                submission,
+        String cmd = String.format(
+                "wget -O solution.zip %s && unzip solution.zip" +
+                        " && wget -O test.zip %s && unzip test.zip" +
+                        " && mv test solution/src/test" +
+                        " && cd solution" +
+                        " && mvn clean test -q",
                 solutionUri,
                 testUri
         );
 
+        Integer statusCode = runJob(
+                "test_job",
+                submission,
+                "/bin/bash", "-c", cmd
+        );
+
         log.info("Status code is {}", statusCode);
-        if(statusCode == 0){
+        if (statusCode == 0) {
             submission.setStatus(SubmissionEntity.Status.ACCEPTED);
             submissionService.save(submission);
             chain.doNext(submission, chain);

@@ -2,12 +2,12 @@ package com.example.demo.service.submission;
 
 
 import com.example.demo.dto.task.TaskSubmissionRequestDto;
+import com.example.demo.exceptions.SubmissionNotFoundException;
 import com.example.demo.model.submission.SubmissionEntity;
 import com.example.demo.repository.SubmissionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,8 +34,9 @@ public class SubmissionService {
         return submissionRepository.findAllByStatus(SubmissionEntity.Status.SUBMITTED);
     }
 
-    public Optional<SubmissionEntity> findSubmissionById(String id) {
-        return submissionRepository.findSubmissionEntityById(id);
+    public SubmissionEntity findSubmissionById(String id) {
+        return submissionRepository.findSubmissionEntityById(id)
+                .orElseThrow(() -> new SubmissionNotFoundException(id));
     }
 
     public void save(SubmissionEntity submissionEntity) {

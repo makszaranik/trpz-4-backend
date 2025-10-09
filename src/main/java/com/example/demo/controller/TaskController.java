@@ -12,12 +12,17 @@ import com.example.demo.service.task.TaskMapper;
 import com.example.demo.service.task.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -31,24 +36,23 @@ public class TaskController {
     private final SubmissionService submissionService;
 
 
-    @PostMapping("submit")
+    @PostMapping(path = "submit", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter submitTask(@RequestBody @Valid TaskSubmissionRequestDto submitDto) {
         SubmissionEntity submission = submissionService.createSubmission(submitDto);
         SseEmitter emitter = new SseEmitter();
         ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
-            for (int i=0; true; i++){
+        executor.submit(() -> {
+            while (true) {
+                SubmissionEntity currentSubmission = submissionService.findSubmissionById(submission.getId());
                 SseEmitter.SseEventBuilder event = SseEmitter.event()
-                        .data(submissionService.findSubmissionById(submission.getId()))
-                        .id(String.valueOf(i))
-                        .name("event " + i);
+                        .id(String.valueOf(UUID.randomUUID()))
+                        .data(currentSubmission);
                 try {
                     emitter.send(event);
-                    Thread.sleep(5000);
-                } catch (IOException | InterruptedException e) {
+                } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-
+                Thread.sleep(2000);
             }
         });
         return emitter;

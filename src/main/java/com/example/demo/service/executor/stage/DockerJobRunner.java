@@ -23,12 +23,12 @@ public abstract class DockerJobRunner {
     protected final DockerClient dockerClient;
     private final SubmissionService submissionService;
 
-    public Integer runJob(String imageTag, String containerName, SubmissionEntity submission, String... args) {
+    public Integer runJob(String containerName, SubmissionEntity submission, String... args) {
         Integer statusCode;
         String containerId = "";
 
         try {
-            CreateContainerResponse container = dockerClient.createContainerCmd(imageTag)
+            CreateContainerResponse container = dockerClient.createContainerCmd("java-maven-ci")
                     .withCmd(args)
                     .withHostConfig(HostConfig.newHostConfig().withNetworkMode("demo_default"))
                     .withAttachStdin(true)

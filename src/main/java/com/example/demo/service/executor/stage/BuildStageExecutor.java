@@ -7,6 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Slf4j
 @Component("build")
 public class BuildStageExecutor extends DockerJobRunner implements StageExecutor {
@@ -27,11 +30,17 @@ public class BuildStageExecutor extends DockerJobRunner implements StageExecutor
         String downloadPath = "http://app:8080/files/download/%s";
         String solutionUri = String.format(downloadPath, submission.getSourceCodeFileId());
 
-        Integer statusCode = runJob(
-                "compile_stage",
-                "compile-container",
-                submission,
+        String cmd = String.format(
+                "wget -O solution.zip %s && unzip solution.zip" +
+                        " && cd solution" +
+                        " && mvn clean compile -q",
                 solutionUri
+        );
+
+        Integer statusCode = runJob(
+                "build_container",
+                submission,
+                "/bin/bash", "-c", cmd
         );
 
         log.info("Status code is {}", statusCode);
