@@ -36,7 +36,7 @@ public class TaskController {
     private final SubmissionService submissionService;
 
 
-    @PostMapping(path = "submit", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @PostMapping(path = "submit")
     public SseEmitter submitTask(@RequestBody @Valid TaskSubmissionRequestDto submitDto) {
         SubmissionEntity submission = submissionService.createSubmission(submitDto);
         SseEmitter emitter = new SseEmitter();
@@ -52,7 +52,7 @@ public class TaskController {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-                Thread.sleep(2000);
+                Thread.sleep(5000);
             }
         });
         return emitter;

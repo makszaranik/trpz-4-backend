@@ -44,8 +44,7 @@ public class TestStageExecutor extends DockerJobRunner implements StageExecutor 
                         " && mv test solution/src/test" +
                         " && cd solution" +
                         " && mvn clean test -q",
-                solutionUri,
-                testUri
+                solutionUri, testUri
         );
 
         Integer statusCode = runJob(
