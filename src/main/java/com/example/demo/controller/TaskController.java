@@ -13,6 +13,7 @@ import com.example.demo.service.task.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -34,7 +35,6 @@ public class TaskController {
     private final TaskService taskService;
     private final TaskMapper taskMapper;
     private final SubmissionService submissionService;
-
 
     @PostMapping(path = "submit")
     public SseEmitter submitTask(@RequestBody @Valid TaskSubmissionRequestDto submitDto) {

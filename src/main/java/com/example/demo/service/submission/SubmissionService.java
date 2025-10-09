@@ -1,11 +1,13 @@
 package com.example.demo.service.submission;
 
 
+import com.example.demo.config.RabbitConfig;
 import com.example.demo.dto.task.TaskSubmissionRequestDto;
 import com.example.demo.exceptions.SubmissionNotFoundException;
 import com.example.demo.model.submission.SubmissionEntity;
 import com.example.demo.repository.SubmissionRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,6 +17,7 @@ import java.util.List;
 public class SubmissionService {
 
     private final SubmissionRepository submissionRepository;
+    private final RabbitTemplate rabbitTemplate;
 
     public SubmissionEntity createSubmission(TaskSubmissionRequestDto submitDto) {
         SubmissionEntity taskSubmission = SubmissionEntity.builder()
@@ -25,7 +28,9 @@ public class SubmissionService {
                 .logs("")
                 .build();
 
-        return submissionRepository.save(taskSubmission);
+        SubmissionEntity saved = submissionRepository.save(taskSubmission);
+        rabbitTemplate.convertAndSend("",  RabbitConfig.SUBMISSION_QUEUE, saved.getId());
+        return saved;
     }
 
 

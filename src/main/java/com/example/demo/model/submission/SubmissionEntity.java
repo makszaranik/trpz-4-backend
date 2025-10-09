@@ -9,6 +9,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
@@ -16,7 +17,7 @@ import java.time.LocalDateTime;
 @Document("submissions")
 @NoArgsConstructor
 @AllArgsConstructor
-public class SubmissionEntity {
+public class SubmissionEntity implements Serializable {
 
     @Id
     private String id;
