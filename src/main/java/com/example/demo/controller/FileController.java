@@ -3,6 +3,7 @@ package com.example.demo.controller;
 
 import com.example.demo.model.file.FileEntity;
 import com.example.demo.model.file.FileEntity.FileType;
+import com.example.demo.security.UserContext;
 import com.example.demo.service.file.FileUtilService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
@@ -17,12 +18,14 @@ import org.springframework.web.multipart.MultipartFile;
 public class FileController {
 
     private final FileUtilService fileUtilService;
+    private final UserContext context;
 
     @PostMapping("upload")
     @ResponseStatus(HttpStatus.CREATED)
     public FileEntity uploadFile(@RequestParam("file") MultipartFile file,
                                  @RequestParam FileType fileType) {
-        return fileUtilService.uploadFile(file, fileType, "ownerId");
+        String ownerId = context.get().getId();
+        return fileUtilService.uploadFile(file, fileType, ownerId);
     }
 
 

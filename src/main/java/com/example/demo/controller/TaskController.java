@@ -27,14 +27,15 @@ public class TaskController {
     private final SubmissionService submissionService;
     private final UserContext context;
 
-
     @PostMapping(path = "submit")
+    @ResponseStatus(HttpStatus.OK)
     @PreAuthorize(roles = {UserRole.ADMIN, UserRole.STUDENT, UserRole.TEACHER})
     public SubmissionEntity submitTask(@RequestBody @Valid TaskSubmissionRequestDto submitDto) {
         return submissionService.createSubmission(submitDto);
     }
 
     @PostMapping(path = "status")
+    @ResponseStatus(HttpStatus.OK)
     @PreAuthorize(roles = {UserRole.ADMIN, UserRole.STUDENT, UserRole.TEACHER})
     public SubmissionEntity taskStatus(@RequestBody @Valid TaskSubmissionStatusRequestDto requestDto) {
         return submissionService.findSubmissionById(requestDto.submissionId());

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -23,11 +24,14 @@ public abstract class FileEntity {
     private String ownerId;
     private String gridFSFileId;
 
+    @CreatedBy
+    protected String createdBy;
+
     @CreatedDate
-    private LocalDateTime createdAt;
+    protected LocalDateTime createdAt;
 
     @LastModifiedDate
-    private LocalDateTime lastModifiedAt;
+    protected LocalDateTime lastModifiedAt;
 
     public enum FileType {
         LINTER,

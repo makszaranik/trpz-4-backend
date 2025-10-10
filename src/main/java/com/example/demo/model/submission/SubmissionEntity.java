@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -29,6 +30,9 @@ public class SubmissionEntity implements Serializable {
 
     @CreatedDate
     private LocalDateTime createdAt;
+
+    @CreatedBy
+    private String createdBy;
 
     public enum Status {
         SUBMITTED,
