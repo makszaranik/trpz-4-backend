@@ -9,5 +9,5 @@ public record RegistrationRequest(
         @NotNull @NotBlank String username,
         @NotNull @NotBlank String password,
         @Email String email,
-        @NotNull @NotBlank UserEntity.UserRole role
+        @NotNull UserEntity.UserRole role
 ) {}

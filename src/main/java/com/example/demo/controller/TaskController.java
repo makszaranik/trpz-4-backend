@@ -1,10 +1,7 @@
 package com.example.demo.controller;
 
 
-import com.example.demo.dto.task.TaskRequestDto;
-import com.example.demo.dto.task.TaskDeletionRequestDto;
-import com.example.demo.dto.task.TaskResponseDto;
-import com.example.demo.dto.task.TaskSubmissionRequestDto;
+import com.example.demo.dto.task.*;
 import com.example.demo.model.submission.SubmissionEntity;
 import com.example.demo.model.task.TaskEntity;
 import com.example.demo.model.user.UserEntity.UserRole;
@@ -35,6 +32,12 @@ public class TaskController {
     @PreAuthorize(roles = {UserRole.ADMIN, UserRole.STUDENT, UserRole.TEACHER})
     public SubmissionEntity submitTask(@RequestBody @Valid TaskSubmissionRequestDto submitDto) {
         return submissionService.createSubmission(submitDto);
+    }
+
+    @PostMapping(path = "status")
+    @PreAuthorize(roles = {UserRole.ADMIN, UserRole.STUDENT, UserRole.TEACHER})
+    public SubmissionEntity taskStatus(@RequestBody @Valid TaskSubmissionStatusRequestDto requestDto) {
+        return submissionService.findSubmissionById(requestDto.submissionId());
     }
 
 
