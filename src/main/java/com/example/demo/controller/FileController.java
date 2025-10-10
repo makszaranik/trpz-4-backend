@@ -3,7 +3,7 @@ package com.example.demo.controller;
 
 import com.example.demo.model.file.FileEntity;
 import com.example.demo.model.file.FileEntity.FileType;
-import com.example.demo.service.FileUtilService;
+import com.example.demo.service.file.FileUtilService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.data.mongodb.gridfs.GridFsResource;

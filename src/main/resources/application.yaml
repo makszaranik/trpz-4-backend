@@ -6,3 +6,5 @@ spring:
     scheduling:
       pool:
         size: 10
+jwt:
+  expiration: 300000

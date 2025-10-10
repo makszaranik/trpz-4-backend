@@ -7,25 +7,18 @@ import com.example.demo.dto.task.TaskResponseDto;
 import com.example.demo.dto.task.TaskSubmissionRequestDto;
 import com.example.demo.model.submission.SubmissionEntity;
 import com.example.demo.model.task.TaskEntity;
+import com.example.demo.model.user.UserEntity.UserRole;
+import com.example.demo.security.PreAuthorize;
+import com.example.demo.security.UserContext;
 import com.example.demo.service.submission.SubmissionService;
 import com.example.demo.service.task.TaskMapper;
 import com.example.demo.service.task.TaskService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @RestController
 @RequestMapping("tasks")
@@ -35,47 +28,38 @@ public class TaskController {
     private final TaskService taskService;
     private final TaskMapper taskMapper;
     private final SubmissionService submissionService;
+    private final UserContext context;
+
 
     @PostMapping(path = "submit")
-    public SseEmitter submitTask(@RequestBody @Valid TaskSubmissionRequestDto submitDto) {
-        SubmissionEntity submission = submissionService.createSubmission(submitDto);
-        SseEmitter emitter = new SseEmitter();
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.submit(() -> {
-            while (true) {
-                SubmissionEntity currentSubmission = submissionService.findSubmissionById(submission.getId());
-                SseEmitter.SseEventBuilder event = SseEmitter.event()
-                        .id(String.valueOf(UUID.randomUUID()))
-                        .data(currentSubmission);
-                try {
-                    emitter.send(event);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                Thread.sleep(5000);
-            }
-        });
-        return emitter;
+    @PreAuthorize(roles = {UserRole.ADMIN, UserRole.STUDENT, UserRole.TEACHER})
+    public SubmissionEntity submitTask(@RequestBody @Valid TaskSubmissionRequestDto submitDto) {
+        return submissionService.createSubmission(submitDto);
     }
 
 
     @PostMapping("create")
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize(roles = {UserRole.ADMIN, UserRole.TEACHER})
     public String createTask(@RequestBody @Valid TaskRequestDto createDto) {
-        TaskEntity task = taskMapper.toEntity(createDto, "ownerId");
+        String ownerId = context.get().getId();
+        TaskEntity task = taskMapper.toEntity(createDto, ownerId);
         return taskService.save(task);
     }
 
     @DeleteMapping("delete")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize(roles = {UserRole.ADMIN, UserRole.TEACHER})
     public void deleteTask(@RequestBody @Valid TaskDeletionRequestDto deleteDto) {
         taskService.removeTaskEntity(deleteDto.taskId());
     }
 
     @PutMapping("update")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize(roles = {UserRole.ADMIN, UserRole.TEACHER})
     public void updateTask(@RequestBody @Valid TaskRequestDto updateDto) {
-        taskService.updateTask(taskMapper.toEntity(updateDto, "ownerId"));
+        String ownerId = context.get().getId();
+        taskService.updateTask(taskMapper.toEntity(updateDto, ownerId));
     }
 
 

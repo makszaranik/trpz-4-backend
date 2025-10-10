@@ -1,4 +1,4 @@
-package com.example.demo.service;
+package com.example.demo.service.file;
 
 import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.model.file.FileEntity;

@@ -22,6 +22,7 @@ public class UserEntity {
     private UserRole role;
 
     public enum UserRole {
+        GUEST,
         STUDENT,
         TEACHER,
         ADMIN
