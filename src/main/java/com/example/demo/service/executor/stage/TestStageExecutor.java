@@ -31,7 +31,7 @@ public class TestStageExecutor extends DockerJobRunner implements StageExecutor 
     public void execute(SubmissionEntity submission, StageExecutorChain chain) {
 
         log.info("Test stage for submission {}.", submission.getId());
-        TaskEntity task = taskService.findTaskEntityById(submission.getTaskId());
+        TaskEntity task = taskService.findTaskById(submission.getTaskId());
         String testsFileId = task.getTestsFileId();
 
         String downloadPath = "http://app:8080/files/download/%s";

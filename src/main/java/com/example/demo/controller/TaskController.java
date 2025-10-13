@@ -28,14 +28,13 @@ public class TaskController {
     private final UserContext context;
 
     @PostMapping(path = "submit")
-    @ResponseStatus(HttpStatus.OK)
     @PreAuthorize(roles = {UserRole.ADMIN, UserRole.STUDENT, UserRole.TEACHER})
     public SubmissionEntity submitTask(@RequestBody @Valid TaskSubmissionRequestDto submitDto) {
         return submissionService.createSubmission(submitDto);
     }
 
+
     @PostMapping(path = "status")
-    @ResponseStatus(HttpStatus.OK)
     @PreAuthorize(roles = {UserRole.ADMIN, UserRole.STUDENT, UserRole.TEACHER})
     public SubmissionEntity taskStatus(@RequestBody @Valid TaskSubmissionStatusRequestDto requestDto) {
         return submissionService.findSubmissionById(requestDto.submissionId());
@@ -51,15 +50,15 @@ public class TaskController {
         return taskService.save(task);
     }
 
+
     @DeleteMapping("delete")
-    @ResponseStatus(HttpStatus.OK)
     @PreAuthorize(roles = {UserRole.ADMIN, UserRole.TEACHER})
     public void deleteTask(@RequestBody @Valid TaskDeletionRequestDto deleteDto) {
         taskService.removeTaskEntity(deleteDto.taskId());
     }
 
+
     @PutMapping("update")
-    @ResponseStatus(HttpStatus.OK)
     @PreAuthorize(roles = {UserRole.ADMIN, UserRole.TEACHER})
     public void updateTask(@RequestBody @Valid TaskRequestDto updateDto) {
         String ownerId = context.get().getId();
@@ -68,16 +67,13 @@ public class TaskController {
 
 
     @GetMapping("{id}")
-    @ResponseStatus(HttpStatus.OK)
     public TaskResponseDto findTask(@PathVariable String id) {
-        TaskEntity task = taskService.findTaskEntityById(id);
+        TaskEntity task = taskService.findTaskById(id);
         return taskMapper.toResponseDto(task);
     }
 
 
-
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
     public List<TaskResponseDto> findAllTasks() {
         List<TaskEntity> tasks = taskService.findAll();
         return tasks.stream()
