@@ -5,6 +5,7 @@ import com.example.demo.model.task.TaskEntity;
 import com.example.demo.service.submission.SubmissionService;
 import com.example.demo.service.task.TaskService;
 import com.github.dockerjava.api.DockerClient;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -17,12 +18,13 @@ public class TestStageExecutor extends DockerJobRunner implements StageExecutor 
     private final TaskService taskService;
     private final SubmissionService submissionService;
 
+
     @Autowired
     public TestStageExecutor(DockerClient dockerClient,
                              SubmissionService submissionService,
                              TaskService taskService
     ) {
-        super(dockerClient, submissionService);
+        super(dockerClient);
         this.taskService = taskService;
         this.submissionService = submissionService;
     }
@@ -34,7 +36,7 @@ public class TestStageExecutor extends DockerJobRunner implements StageExecutor 
         TaskEntity task = taskService.findTaskById(submission.getTaskId());
         String testsFileId = task.getTestsFileId();
 
-        String downloadPath = "http://app:8080/files/download/%s";
+        String downloadPath = "http://host.docker.internal:8080/files/download/%s";
         String solutionUri = String.format(downloadPath, submission.getSourceCodeFileId());
         String testUri = String.format(downloadPath, testsFileId);
 
@@ -47,19 +49,24 @@ public class TestStageExecutor extends DockerJobRunner implements StageExecutor 
                 solutionUri, testUri
         );
 
-        Integer statusCode = runJob(
+        JobResult jobResult = runJob(
                 "test_job",
                 submission,
                 "/bin/bash", "-c", cmd
         );
 
+        Integer statusCode = jobResult.statusCode();
+        String logs = jobResult.logs();
+
         log.info("Status code is {}", statusCode);
         if (statusCode == 0) {
             submission.setStatus(SubmissionEntity.Status.ACCEPTED);
+            submission.setLogs(logs);
             submissionService.save(submission);
             chain.doNext(submission, chain);
         } else {
             submission.setStatus(SubmissionEntity.Status.WRONG_ANSWER);
+            submission.setLogs(logs);
             submissionService.save(submission);
         }
     }

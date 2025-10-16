@@ -21,10 +21,10 @@ import java.util.concurrent.TimeUnit;
 public abstract class DockerJobRunner {
 
     protected final DockerClient dockerClient;
-    private final SubmissionService submissionService;
 
-    public Integer runJob(String containerName, SubmissionEntity submission, String... args) {
+    public JobResult runJob(String containerName, SubmissionEntity submission, String... args) {
         Integer statusCode;
+        String containerLogs = "";
         String containerId = "";
 
         try {
@@ -54,14 +54,14 @@ public abstract class DockerJobRunner {
             log.error(e.getMessage(), e);
 
         } finally {
-            collectAndSaveLogs(containerId, submission);
+            containerLogs = collectLogs(containerId, submission);
             removeContainer(containerId);
         }
-        return statusCode;
+        return new JobResult(statusCode, containerLogs);
     }
 
     @SneakyThrows
-    private void collectAndSaveLogs(String containerId, SubmissionEntity submission) {
+    private String collectLogs(String containerId, SubmissionEntity submission) {
         StringBuilder logs = new StringBuilder();
         dockerClient.logContainerCmd(containerId)
                 .withStdOut(true)
@@ -74,11 +74,10 @@ public abstract class DockerJobRunner {
                         logs.append(line).append(System.lineSeparator());
                     }
                 })
-                .awaitCompletion(60, TimeUnit.SECONDS); //await logs 60 sec
+                .awaitCompletion(60, TimeUnit.SECONDS); //await logs for 60 sec
 
         log.info("container {} logs", logs);
-        submission.setLogs(logs.toString());
-        submissionService.save(submission);
+        return logs.toString();
     }
 
     private void removeContainer(String containerId) {
@@ -87,5 +86,7 @@ public abstract class DockerJobRunner {
                 .withForce(true)
                 .exec();
     }
+
+    public record JobResult(Integer statusCode, String logs){}
 
 }

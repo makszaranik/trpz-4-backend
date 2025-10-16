@@ -4,7 +4,7 @@ services:
     restart: always
     ports:
       - 27017:27017
-    command: ["--replSet", "rs0", "--bind_ip_all", "--auth", "--keyFile", "/etc/secrets/mongo-keyfile"]
+    command: ["mongod", "--replSet", "rs0", "--auth", "--keyFile", "/etc/secrets/mongo-keyfile"]
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
@@ -27,6 +27,8 @@ services:
     image: app
     restart: always
     depends_on:
+      gateway:
+        condition: service_started
       mongo:
         condition: service_started
       rabbit:
@@ -34,13 +36,19 @@ services:
     ports:
       - 8080:8080
     environment:
-      SPRING_DATA_MONGODB_URI: mongodb://root:example@mongo:27017/demo?authSource=admin
+      SPRING_DATA_MONGODB_URI: mongodb://root:example@mongo:27017/demo?replicaSet=rs0&authSource=admin
       SPRING_RABBITMQ_HOST: rabbit
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: guest
       SPRING_RABBITMQ_PASSWORD: guest
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+
+  gateway:
+    image: gateway
+    restart: always
+    ports:
+      - 8081:8081
 
   rabbit:
     image: rabbitmq:3-management
