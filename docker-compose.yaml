@@ -4,13 +4,9 @@ services:
     restart: always
     ports:
       - 27017:27017
-    command: ["mongod", "--replSet", "rs0", "--auth", "--keyFile", "/etc/secrets/mongo-keyfile"]
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
+    command: ["mongod", "--replSet", "rs0"]
     volumes:
       - mongo-data:/data/db
-      - ./mongo-keyfile:/etc/secrets/mongo-keyfile
 
   mongo-express:
     image: mongo-express
@@ -18,13 +14,13 @@ services:
     ports:
       - 8081:8081
     environment:
-      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/?replicaSet=rs0&authSource=admin
+      ME_CONFIG_MONGODB_URL: mongodb://mongo:27017/?replicaSet=rs0
       ME_CONFIG_BASICAUTH_ENABLED: true
       ME_CONFIG_BASICAUTH_USERNAME: mongoexpressuser
       ME_CONFIG_BASICAUTH_PASSWORD: mongoexpresspass
 
-  app:
-    image: app
+  core:
+    image: core
     restart: always
     depends_on:
       gateway:
@@ -36,7 +32,7 @@ services:
     ports:
       - 8080:8080
     environment:
-      SPRING_DATA_MONGODB_URI: mongodb://root:example@mongo:27017/demo?replicaSet=rs0&authSource=admin
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/demo?replicaSet=rs0
       SPRING_RABBITMQ_HOST: rabbit
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: guest
